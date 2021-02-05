@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from posts.views import (
-    index, blog, post, search, 
+    index, blog, post, search,
     post_create, post_update, post_delete)
 
 urlpatterns = [
@@ -17,8 +17,11 @@ urlpatterns = [
     path('post/<id>/update/', post_update, name='post-update'),
     path('post/<id>/delete/', post_delete, name='post-delete'),
     path('tinymce/', include('tinymce.urls')),
+    path('accounts/', include('allauth.urls'))
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

@@ -2,7 +2,7 @@ from django.db.models import Count, Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from .forms import CommentForm, PostForm
-from .models import Post, Author
+from .models import Post, Author, PostView
 from marketing.models import Signup
 
 
@@ -51,6 +51,7 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
+
 def blog(request):
     category_count = get_category_count()
     most_recent = Post.objects.order_by('-timestamp')[:3]
@@ -73,10 +74,15 @@ def blog(request):
     }
     return render(request, 'blog.html', context)
 
+
 def post(request, id):
     category_count = get_category_count()
     most_recent = Post.objects.order_by('-timestamp')[:3]
     post = get_object_or_404(Post, id=id)
+
+    if request.user.is_authenticated:
+        PostView.objects.get_or_create(user=request.user, post=post)
+
     form = CommentForm(request.POST or None)
     if request.method == "POST":
         if form.is_valid():
@@ -93,6 +99,7 @@ def post(request, id):
         'category_count': category_count
     }
     return render(request, 'post.html', context)
+
 
 def post_create(request):
     title = 'Create'
@@ -111,12 +118,13 @@ def post_create(request):
     }
     return render(request, "post_create.html", context)
 
+
 def post_update(request, id):
     title = 'Update'
     post = get_object_or_404(Post, id=id)
     form = PostForm(
-        request.POST or None, 
-        request.FILES or None, 
+        request.POST or None,
+        request.FILES or None,
         instance=post)
     author = get_author(request.user)
     if request.method == "POST":
